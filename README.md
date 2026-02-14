@@ -1,4 +1,5 @@
 # Meeting Detection - Python Library
+Install from here : [meeting-detection] (https://pypi.org/project/meeting-detection/1.0.0/)
 
 Python implementation of the meeting detection library for detecting active video meetings on macOS.
 
