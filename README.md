@@ -27,13 +27,23 @@ This is a pure Python port of the original Rust/Node.js implementation, maintain
 
 ## Installation
 
+### From PyPI
+
 ```bash
-pip install -e .
+pip install meeting-detection
 ```
 
-Or for development:
+### From GitHub
 
 ```bash
+pip install git+https://github.com/Jarus77/meeting-status-py.git
+```
+
+### For Development
+
+```bash
+git clone https://github.com/Jarus77/meeting-status-py.git
+cd meeting-status-py
 pip install -e ".[dev]"
 ```
 
@@ -369,4 +379,6 @@ MIT
 
 ## Credits
 
-Python port based on the original Rust/Node.js implementation with 100% accuracy parity.
+This is a pure Python port of the original [meeting-detection](https://github.com/Ayobamiu/meeting-detection) library (Rust/Node.js implementation by [@Ayobamiu](https://github.com/Ayobamiu)). This Python version maintains 100% accuracy parity with the original implementation while providing a more accessible API for Python developers and command-line tools.
+
+**Original Repository:** https://github.com/Ayobamiu/meeting-detection

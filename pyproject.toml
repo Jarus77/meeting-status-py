@@ -8,7 +8,7 @@ version = "1.0.0"
 description = "Python library for detecting active video meetings on macOS"
 readme = "README.md"
 requires-python = ">=3.8"
-license = {text = "MIT"}
+license = "MIT"
 keywords = ["meeting", "detection", "zoom", "teams", "google-meet", "macos"]
 authors = [
     {name = "Meeting Detection Team"}
@@ -16,7 +16,6 @@ authors = [
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -37,6 +36,7 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/meeting-detection"
-Documentation = "https://github.com/yourusername/meeting-detection#readme"
-Repository = "https://github.com/yourusername/meeting-detection"
+Homepage = "https://github.com/Jarus77/meeting-status-py"
+Documentation = "https://github.com/Jarus77/meeting-status-py#readme"
+Repository = "https://github.com/Jarus77/meeting-status-py"
+"Bug Tracker" = "https://github.com/Jarus77/meeting-status-py/issues"
