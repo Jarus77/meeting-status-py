@@ -123,168 +123,74 @@ def is_browser_process(process_name: str) -> bool:
     return is_browser_process_macos(process_name)
 
 
+def get_browser_tab_urls_generic(applescript_name: str) -> List[str]:
+    """Get URLs from any browser using AppleScript. Works for all Chromium + Safari."""
+    # Safety: verify app is running via System Events (prevents launching it)
+    check_script = f'tell application "System Events" to (name of processes) contains "{applescript_name}"'
+    try:
+        check = subprocess.run(
+            ['osascript', '-e', check_script],
+            capture_output=True, text=True, timeout=3
+        )
+        if check.stdout.strip() != 'true':
+            return []
+    except Exception:
+        return []
+
+    # Extract tab URLs
+    script = f'''
+        tell application "{applescript_name}"
+            set urlList to {{}}
+            repeat with w in windows
+                repeat with t in tabs of w
+                    set end of urlList to URL of t
+                end repeat
+            end repeat
+            set AppleScript's text item delimiters to ", "
+            set resultString to urlList as string
+            set AppleScript's text item delimiters to ""
+            return resultString
+        end tell
+    '''
+    try:
+        result = subprocess.run(
+            ['osascript', '-e', script],
+            capture_output=True, text=True, timeout=5
+        )
+        if result.returncode != 0:
+            return []
+        urls_str = result.stdout.strip()
+        return [s.strip() for s in urls_str.split(',') if s.strip()]
+    except Exception:
+        return []
+
+
 def get_browser_tab_urls() -> Dict[str, List[str]]:
     """
-    Get browser tab URLs for meeting detection.
+    Get tab URLs from all running browsers in the registry.
     Returns dict of browser name -> list of URLs.
-    From src/platform/macos.rs lines 142-167
     """
+    from ..config import BROWSER_REGISTRY
+
     browser_urls = {}
 
-    # Get URLs from Chrome
-    chrome_urls = get_chrome_tab_urls()
-    if chrome_urls:
-        browser_urls['Google Chrome'] = chrome_urls
+    # Collect running process names once
+    running = set()
+    for proc in psutil.process_iter(['name']):
+        try:
+            running.add(proc.info['name'])
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
 
-    # Get URLs from Safari
-    safari_urls = get_safari_tab_urls()
-    if safari_urls:
-        browser_urls['Safari'] = safari_urls
-
-    # Get URLs from Edge
-    edge_urls = get_edge_tab_urls()
-    if edge_urls:
-        browser_urls['Microsoft Edge'] = edge_urls
+    for browser_name, applescript_name in BROWSER_REGISTRY.items():
+        # Check if browser is in running processes (case-insensitive)
+        is_running = any(
+            browser_name.lower() in p.lower() or applescript_name.lower() in p.lower()
+            for p in running
+        )
+        if is_running:
+            urls = get_browser_tab_urls_generic(applescript_name)
+            if urls:
+                browser_urls[browser_name] = urls
 
     return browser_urls
-
-
-def get_chrome_tab_urls() -> List[str]:
-    """
-    Get URLs from all Chrome tabs using AppleScript.
-    From src/platform/macos.rs lines 170-207
-    """
-    script = '''
-        tell application "Google Chrome"
-            set urlList to {}
-            repeat with w in windows
-                repeat with t in tabs of w
-                    set end of urlList to URL of t
-                end repeat
-            end repeat
-            set AppleScript's text item delimiters to ", "
-            set resultString to urlList as string
-            set AppleScript's text item delimiters to ""
-            return resultString
-        end tell
-    '''
-
-    try:
-        result = subprocess.run(
-            ['osascript', '-e', script],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-
-        if result.returncode != 0:
-            return []
-
-        urls_str = result.stdout.strip()
-
-        # Parse comma-separated URLs
-        urls = [
-            s.strip()
-            for s in urls_str.split(',')
-            if s.strip()
-        ]
-
-        return urls
-
-    except Exception:
-        # Chrome not running or error - return empty
-        return []
-
-
-def get_safari_tab_urls() -> List[str]:
-    """
-    Get URLs from all Safari tabs using AppleScript.
-    From src/platform/macos.rs lines 210-247
-    """
-    script = '''
-        tell application "Safari"
-            set urlList to {}
-            repeat with w in windows
-                repeat with t in tabs of w
-                    set end of urlList to URL of t
-                end repeat
-            end repeat
-            set AppleScript's text item delimiters to ", "
-            set resultString to urlList as string
-            set AppleScript's text item delimiters to ""
-            return resultString
-        end tell
-    '''
-
-    try:
-        result = subprocess.run(
-            ['osascript', '-e', script],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-
-        if result.returncode != 0:
-            return []
-
-        urls_str = result.stdout.strip()
-
-        # Parse comma-separated URLs
-        urls = [
-            s.strip()
-            for s in urls_str.split(',')
-            if s.strip()
-        ]
-
-        return urls
-
-    except Exception:
-        # Safari not running or error - return empty
-        return []
-
-
-def get_edge_tab_urls() -> List[str]:
-    """
-    Get URLs from all Edge tabs using AppleScript.
-    From src/platform/macos.rs lines 250-287
-    """
-    script = '''
-        tell application "Microsoft Edge"
-            set urlList to {}
-            repeat with w in windows
-                repeat with t in tabs of w
-                    set end of urlList to URL of t
-                end repeat
-            end repeat
-            set AppleScript's text item delimiters to ", "
-            set resultString to urlList as string
-            set AppleScript's text item delimiters to ""
-            return resultString
-        end tell
-    '''
-
-    try:
-        result = subprocess.run(
-            ['osascript', '-e', script],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-
-        if result.returncode != 0:
-            return []
-
-        urls_str = result.stdout.strip()
-
-        # Parse comma-separated URLs
-        urls = [
-            s.strip()
-            for s in urls_str.split(',')
-            if s.strip()
-        ]
-
-        return urls
-
-    except Exception:
-        # Edge not running or error - return empty
-        return []

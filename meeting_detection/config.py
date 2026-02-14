@@ -128,6 +128,25 @@ BROWSER_PROCESSES = [
 ]
 
 
+# Browser registry for AppleScript URL extraction.
+# Maps browser display names to AppleScript application names.
+# All Chromium-based browsers share the same AppleScript tabs API.
+# Safari also uses an identical API.
+BROWSER_REGISTRY = {
+    # Chromium-based
+    'Google Chrome': 'Google Chrome',
+    'Microsoft Edge': 'Microsoft Edge',
+    'Arc': 'Arc',
+    'Brave Browser': 'Brave Browser',
+    'Opera': 'Opera',
+    'Vivaldi': 'Vivaldi',
+    'Chromium': 'Chromium',
+    # Safari (same tabs API)
+    'Safari': 'Safari',
+    # Firefox omitted — no AppleScript tab URL support
+}
+
+
 def is_valid_google_meet_code(code: str) -> bool:
     """
     CRITICAL: Exact port of Rust logic from src/config.rs lines 95-132
