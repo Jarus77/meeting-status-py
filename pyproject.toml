@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "meeting-status-py"
-version = "1.1.0"
+version = "1.2.0"
 description = "Python library for detecting active video meetings on macOS"
 readme = "README.md"
 requires-python = ">=3.8"
